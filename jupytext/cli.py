@@ -15,27 +15,17 @@ from tempfile import NamedTemporaryFile
 from .combine import combine_inputs_with_outputs
 from .compare import NotebookDifference, compare, test_round_trip_conversion
 from .config import load_jupytext_config, notebook_formats
-from .formats import (
-    _BINARY_FORMAT_OPTIONS,
-    _VALID_FORMAT_OPTIONS,
-    JUPYTEXT_FORMATS,
-    check_auto_ext,
-    check_file_version,
-    long_form_multiple_formats,
-    long_form_one_format,
-    short_form_one_format,
-)
+from .formats import (_BINARY_FORMAT_OPTIONS, _VALID_FORMAT_OPTIONS,
+                      JUPYTEXT_FORMATS, check_auto_ext, check_file_version,
+                      long_form_multiple_formats, long_form_one_format,
+                      short_form_one_format)
 from .header import recursive_update
 from .jupytext import create_prefix_dir, read, reads, write, writes
-from .kernels import find_kernel_specs, get_kernel_spec, kernelspec_from_language
+from .kernels import (find_kernel_specs, get_kernel_spec,
+                      kernelspec_from_language)
 from .languages import _SCRIPT_EXTENSIONS
-from .paired_paths import (
-    InconsistentPath,
-    base_path,
-    find_base_path_and_format,
-    full_path,
-    paired_paths,
-)
+from .paired_paths import (InconsistentPath, base_path,
+                           find_base_path_and_format, full_path, paired_paths)
 from .pairs import latest_inputs_and_outputs, read_pair, write_pair
 from .version import __version__
 
@@ -320,6 +310,9 @@ def parse_jupytext_args(args=None):
         "files need to be added to the index. Finally, filepaths that aren't in the source format "
         "you are trying to convert from are ignored.",
     )
+    parser.add_argument(
+        "--output-dir",
+    )
 
     return parser.parse_args(args)
 
@@ -523,6 +516,10 @@ def jupytext_single_file(nb_file, args, log):
             raise
         if args.output_format:
             nb_dest = full_path(bp, args.output_format)
+
+    if args.output_dir:
+        nb_dest = f"{args.output_dir}/{nb_dest}"
+        os.makedirs(os.path.dirname(nb_dest), exist_ok=True)
 
     config = load_jupytext_config(os.path.abspath(nb_file))
 
